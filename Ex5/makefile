@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall -pg
 
 all: brute_force improvement kadanes_alg
 
