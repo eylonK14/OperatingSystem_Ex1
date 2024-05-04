@@ -1,5 +1,5 @@
 CC = gcc
-FLAGS = 
+FLAGS = -g
 
 
 all: division_by_zero stack_overflow undefined_memory
