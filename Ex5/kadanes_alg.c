@@ -8,8 +8,8 @@ int kadanes_alg(int *arr, int size)
 	int current_sum = 0;
 	for(int i = 0; i < size; i++)
 	{
-		current_sum = max(arr[i], current_sum + arr[i]);
-		max_sum = max(max_sum, current_sum);
+		current_sum = arr[i] > current_sum + arr[i] ? arr[i] : current_sum + arr[i];
+		max_sum = max_sum > current_sum ? max_sum : current_sum;
 	}
 	return max_sum;
 }

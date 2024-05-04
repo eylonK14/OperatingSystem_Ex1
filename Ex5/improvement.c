@@ -11,7 +11,7 @@ int improvement(int *arr, int size)
 		for(int b = a; b < size; b++)
 		{
 			sum += arr[b];
-			best = max(best, sum);
+			best = best > sum ? best : sum;
 		}
 	}
 	return best;
