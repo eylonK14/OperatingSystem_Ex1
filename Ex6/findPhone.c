@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
 		printf("Usage: %s <name>\n", argv[0]);
 		exit(1);
 	}
-	name = argv[1];
+	char *name = argv[1];
 	char *grepCmd[] = {"grep", name, "phonebook.txt", NULL};
 	char *cutCmd[] = {"cut", "-d", " ", "-f", "2", NULL};
 	int pipefd[2];
@@ -23,7 +23,13 @@ int main(int argc, char *argv[]) {
 		close(pipefd[0]);
 		execvp(cutCmd[0], cutCmd);
 	}
-	int awkCmd[] = {"awk", "{print $2}", NULL};
+	// replace spaces with hashtag
+	char *firstSedCmd[] = {"sed", "s/ /#/", NULL};
+	execvp(firstSedCmd[0], firstSedCmd);
+	// replace comma with space
+	char *secondSedCmd[] = {"sed", "s/,/ /", NULL};
+	execvp(secondSedCmd[0], secondSedCmd);
+	char *awkCmd[] = {"awk", "{print $2}", NULL};
 	execvp(awkCmd[0], awkCmd);
 	return 0;
 }
