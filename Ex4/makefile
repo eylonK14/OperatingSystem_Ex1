@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -fprofile-arcs -ftest-coverage
 
 all = main
 
@@ -9,4 +9,4 @@ main: main.c
 .PHONY: clean all
 
 clean:
-	rm -f main
+	rm -f main *.gcov *.gcda *.gcno
