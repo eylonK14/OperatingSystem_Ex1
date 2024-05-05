@@ -34,7 +34,7 @@ void printSolution(int dist[], int size)
 // Function that implements Dijkstra's single source
 // shortest path algorithm for a graph represented using
 // adjacency matrix representation
-void dijkstra(int graph[][], int src, int size)
+void dijkstra(int **graph, int src, int size)
 {
     // malloc the dist and sptSet arrays
     int *dist = (int *)malloc(size * sizeof(int)); // The output array. dist[i] will hold the shortest distance from src to i
@@ -92,7 +92,7 @@ int main()
     //                    {0,  0, 2,  0,  0,  0, 6,  7, 0}};
 
     // build the graph using the user input
-    int graph[][];
+    int **graph;
 
     printf("Enter the number of rows: ");
 	scanf("%d", &rows);
