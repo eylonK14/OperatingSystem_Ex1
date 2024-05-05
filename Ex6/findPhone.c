@@ -1,6 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/wait.h>
+
+void execute_command(char *cmd[], int input_fd, int output_fd) {
+    if (fork() == 0) {
+        if (input_fd != STDIN_FILENO) {
+            dup2(input_fd, STDIN_FILENO);
+            close(input_fd);
+        }
+        if (output_fd != STDOUT_FILENO) {
+            dup2(output_fd, STDOUT_FILENO);
+            close(output_fd);
+        }
+        execvp(cmd[0], cmd);
+        perror("execvp");
+        exit(EXIT_FAILURE);
+    }
+}
 
 int main(int argc, char *argv[]) {
 	if (argc != 2) {
@@ -8,51 +25,38 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 	char *name = argv[1];
-	char *grepCmd[] = {"grep", name, "phonebook.txt", NULL};
-	char *sedCmd[] = {"sed", "s/#/ /", NULL};
-	char *secondSedCmd[] = {"sed", "s/,/ /", NULL};
-	// we are doing this command: grep name phonebook.txt | sed 's/ /#/g' | sed 's/,/ /' | awk '{ print $2 }'
-	int pipe1[2];
-	int pipe2[2];
-	pipe(pipe1);
-	pipe(pipe2);
-	pid_t pid1 = fork();
-	if (pid1 == 0) {
-		dup2(pipe1[1], 1);
-		close(pipe1[0]);
-		close(pipe1[1]);
-		execvp(grepCmd[0], grepCmd);
-	}
-	pid_t pid2 = fork();
-	if (pid2 == 0) {
-		dup2(pipe1[0], 0);
-		dup2(pipe2[1], 1);
-		close(pipe1[0]);
-		close(pipe1[1]);
-		close(pipe2[0]);
-		close(pipe2[1]);
-		execvp(sedCmd[0], sedCmd);
-	}
-	pid_t pid3 = fork();
-	if (pid3 == 0) {
-		dup2(pipe2[0], 0);
-		close(pipe2[0]);
-		close(pipe2[1]);
-		execvp(secondSedCmd[0], secondSedCmd);
-	}
-	close(pipe1[0]);
-	close(pipe1[1]);
-	close(pipe2[0]);
-	close(pipe2[1]);
-	waitpid(pid1, NULL, 0);
-	waitpid(pid2, NULL, 0);
-	waitpid(pid3, NULL, 0);
-	char *awkCmd[] = {"awk", "{ print $2 }", NULL};
-	pid_t pid4 = fork();
-	if (pid4 == 0) {
-		dup2(0, 0);
-		execvp(awkCmd[0], awkCmd);
-	}
-	waitpid(pid4, NULL, 0);
+	int pipe1[2], pipe2[2], pipe3[2];
+
+    // Create pipes
+    if (pipe(pipe1) == -1 || pipe(pipe2) == -1 || pipe(pipe3) == -1) {
+        perror("pipe");
+        return EXIT_FAILURE;
+    }
+
+    // grep name phonebook.txt
+    char *grep_args[] = {"grep", name, "phonebook.txt", NULL};
+    execute_command(grep_args, STDIN_FILENO, pipe1[1]);
+    close(pipe1[1]); // Close write end of the first pipe in the parent
+
+    // sed 's/ /#/g'
+    char *sed_args1[] = {"sed", "s/ /#/g", NULL};
+    execute_command(sed_args1, pipe1[0], pipe2[1]);
+    close(pipe1[0]); // Close read end of the first pipe
+    close(pipe2[1]); // Close write end of the second pipe in the parent
+
+    // sed 's/,/ /'
+    char *sed_args2[] = {"sed", "s/,/ /", NULL};
+    execute_command(sed_args2, pipe2[0], pipe3[1]);
+    close(pipe2[0]); // Close read end of the second pipe
+    close(pipe3[1]); // Close write end of the third pipe in the parent
+
+    // awk '{ print $2 }'
+    char *awk_args[] = {"awk", "{ print $2 }", NULL};
+    execute_command(awk_args, pipe3[0], STDOUT_FILENO);
+    close(pipe3[0]); // Close read end of the third pipe
+
+    // Wait for all child processes to finish
+    while (wait(NULL) > 0);
+
 	return 0;
 }
