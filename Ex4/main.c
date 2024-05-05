@@ -5,6 +5,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // A utility function to find the vertex with minimum
 // distance value, from the set of vertices not yet included
