@@ -9,12 +9,12 @@
 // A utility function to find the vertex with minimum
 // distance value, from the set of vertices not yet included
 // in shortest path tree
-int minDistance(int dist[], bool sptSet[])
+int minDistance(int dist[], bool sptSet[], int size)
 {
     // Initialize min value
     int min = INT_MAX, min_index;
 
-    for (int v = 0; v < V; v++)
+    for (int v = 0; v < size; v++)
         if (sptSet[v] == false && dist[v] <= min)
             min = dist[v], min_index = v;
 
@@ -54,7 +54,7 @@ void dijkstra(int graph[V][V], int src, int size)
         // Pick the minimum distance vertex from the set of
         // vertices not yet processed. u is always equal to
         // src in the first iteration.
-        int u = minDistance(dist, sptSet);
+        int u = minDistance(dist, sptSet, size);
 
         // Mark the picked vertex as processed
         sptSet[u] = true;
