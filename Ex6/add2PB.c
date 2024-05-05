@@ -8,7 +8,7 @@ int validate(char *str)
     int i = 0;
     for (i = 0; str[i] != ',' ;i++)
     {
-        if ((str[i] < 'A' || str[i] > 'Z') && (str[i] < 'a' || str[i] > 'z'))
+        if (!((str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z') || str[i] == ' '))
             return 0;
     }
     i++;
