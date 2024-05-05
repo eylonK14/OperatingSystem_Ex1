@@ -24,11 +24,33 @@ int main(int argc, char *argv[]) {
 		execvp(cutCmd[0], cutCmd);
 	}
 	// replace spaces with hashtag
-	char *firstSedCmd[] = {"sed", "s/ /#/", NULL};
-	execvp(firstSedCmd[0], firstSedCmd);
+	int pipefd2[2];
+	pipe(pipefd2);
+	if (fork() == 0) {
+		close(pipefd2[0]);
+		dup2(pipefd2[1], 1);
+		close(pipefd2[1]);
+		char *sedCmd[] = {"sed", "s/#/ /", NULL};
+		execvp(sedCmd[0], sedCmd);
+	} else {
+		close(pipefd2[1]);
+		dup2(pipefd2[0], 0);
+		close(pipefd2[0]);
+	}
 	// replace comma with space
-	char *secondSedCmd[] = {"sed", "s/,/ /", NULL};
-	execvp(secondSedCmd[0], secondSedCmd);
+	int pipefd3[2];
+	pipe(pipefd3);
+	if (fork() == 0) {
+		close(pipefd3[0]);
+		dup2(pipefd3[1], 1);
+		close(pipefd3[1]);
+		char *secondSedCmd[] = {"sed", "s/,/ /", NULL};
+		execvp(secondSedCmd[0], secondSedCmd);
+	} else {
+		close(pipefd3[1]);
+		dup2(pipefd3[0], 0);
+		close(pipefd3[0]);
+	}
 	char *awkCmd[] = {"awk", "{print $2}", NULL};
 	execvp(awkCmd[0], awkCmd);
 	return 0;
