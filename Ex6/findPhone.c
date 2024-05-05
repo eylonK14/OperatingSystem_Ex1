@@ -19,7 +19,10 @@ void execute_command(char *cmd[], int input_fd, int output_fd) {
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
+	// this program assumes that the input is enclosed in double quotes ,
+    // and that the name and phone number are separated by a comma
 	if (argc != 2) {
 		printf("Usage: %s <name>\n", argv[0]);
 		exit(1);
