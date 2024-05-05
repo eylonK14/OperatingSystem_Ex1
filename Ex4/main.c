@@ -23,7 +23,7 @@ int minDistance(int dist[], bool sptSet[], int size)
 
 // A utility function to print the constructed distance
 // array
-void printSolution(int dist[])
+void printSolution(int dist[], int size)
 {
     printf("Vertex \t\t Distance from Source\n");
     for (int i = 0; i < V; i++)
@@ -33,7 +33,7 @@ void printSolution(int dist[])
 // Function that implements Dijkstra's single source
 // shortest path algorithm for a graph represented using
 // adjacency matrix representation
-void dijkstra(int graph[V][V], int src, int size)
+void dijkstra(int graph[][], int src, int size)
 {
     // malloc the dist and sptSet arrays
     int *dist = (int *)malloc(size * sizeof(int)); // The output array. dist[i] will hold the shortest distance from src to i
@@ -72,7 +72,7 @@ void dijkstra(int graph[V][V], int src, int size)
     }
 
     // print the constructed distance array
-    printSolution(dist);
+    printSolution(dist, size);
 }
 
 // driver's code
