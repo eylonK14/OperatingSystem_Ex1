@@ -3,13 +3,17 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-void execute_command(char *cmd[], int input_fd, int output_fd) {
-    if (fork() == 0) {
-        if (input_fd != STDIN_FILENO) {
+void execute_command(char *cmd[], int input_fd, int output_fd)
+{
+    if (fork() == 0)
+	{
+        if (input_fd != STDIN_FILENO)
+		{
             dup2(input_fd, STDIN_FILENO);
             close(input_fd);
         }
-        if (output_fd != STDOUT_FILENO) {
+        if (output_fd != STDOUT_FILENO)
+		{
             dup2(output_fd, STDOUT_FILENO);
             close(output_fd);
         }
@@ -23,7 +27,8 @@ int main(int argc, char *argv[])
 {
 	// this program assumes that the input is enclosed in double quotes ,
     // and that the name and phone number are separated by a comma
-	if (argc != 2) {
+	if (argc != 2)
+	{
 		printf("Usage: %s <name>\n", argv[0]);
 		exit(1);
 	}
@@ -31,7 +36,8 @@ int main(int argc, char *argv[])
 	int pipe1[2], pipe2[2], pipe3[2];
 
     // Create pipes
-    if (pipe(pipe1) == -1 || pipe(pipe2) == -1 || pipe(pipe3) == -1) {
+    if (pipe(pipe1) == -1 || pipe(pipe2) == -1 || pipe(pipe3) == -1)
+	{
         perror("pipe");
         return EXIT_FAILURE;
     }
@@ -59,7 +65,7 @@ int main(int argc, char *argv[])
     close(pipe3[0]); // Close read end of the third pipe
 
     // Wait for all child processes to finish
-    while (wait(NULL) > 0);
+    while (wait(NULL) > 0) {};
 
 	return 0;
 }
