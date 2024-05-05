@@ -6,9 +6,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-// Number of vertices in the graph
-#define V 9
-
 // A utility function to find the vertex with minimum
 // distance value, from the set of vertices not yet included
 // in shortest path tree
@@ -36,27 +33,23 @@ void printSolution(int dist[])
 // Function that implements Dijkstra's single source
 // shortest path algorithm for a graph represented using
 // adjacency matrix representation
-void dijkstra(int graph[V][V], int src)
+void dijkstra(int graph[V][V], int src, int size)
 {
-    int dist[V]; // The output array. dist[i] will hold the
-                 // shortest
-    // distance from src to i
+    // malloc the dist and sptSet arrays
+    int *dist = (int *)malloc(size * sizeof(int)); // The output array. dist[i] will hold the shortest distance from src to i
 
-    bool sptSet[V]; // sptSet[i] will be true if vertex i is
-                    // included in shortest
-    // path tree or shortest distance from src to i is
-    // finalized
+    bool *sptSet = (bool *)malloc(size * sizeof(bool)); // sptSet[i] will be true if vertex i is included in shortest path tree or shortest distance from src to i is finalized
 
     // Initialize all distances as INFINITE and stpSet[] as
     // false
-    for (int i = 0; i < V; i++)
+    for (int i = 0; i < size; i++)
         dist[i] = INT_MAX, sptSet[i] = false;
 
     // Distance of source vertex from itself is always 0
     dist[src] = 0;
 
     // Find shortest path for all vertices
-    for (int count = 0; count < V - 1; count++)
+    for (int count = 0; count < size - 1; count++)
     {
         // Pick the minimum distance vertex from the set of
         // vertices not yet processed. u is always equal to
@@ -68,7 +61,7 @@ void dijkstra(int graph[V][V], int src)
 
         // Update dist value of the adjacent vertices of the
         // picked vertex.
-        for (int v = 0; v < V; v++)
+        for (int v = 0; v < size; v++)
 
             // Update dist[v] only if is not in sptSet,
             // there is an edge from u to v, and total
@@ -87,18 +80,18 @@ int main()
 {
     int weight = 0, rows = 0, cols = 0;
     /* Let us create the example graph discussed above */
-    int graph[V][V] = {{0, 4, 0, 0, 0, 0, 0, 8, 0},
-                       {4, 0, 8, 0, 0, 0, 0, 11, 0},
-                       {0, 8, 0, 7, 0, 4, 0, 0, 2},
-                       {0, 0, 7, 0, 9, 14, 0, 0, 0},
-                       {0, 0, 0, 9, 0, 10, 0, 0, 0},
-                       {0, 0, 4, 14, 10, 0, 2, 0, 0},
-                       {0, 0, 0, 0, 0, 2, 0, 1, 6},
-                       {8, 11, 0, 0, 0, 0, 1, 0, 7},
-                       {0, 0, 2, 0, 0, 0, 6, 7, 0}};
+    // int graph[V][V] = {{0,  4, 0,  0,  0,  0, 0,  8, 0},
+    //                    {4,  0, 8,  0,  0,  0, 0, 11, 0},
+    //                    {0,  8, 0,  7,  0,  4, 0,  0, 2},
+    //                    {0,  0, 7,  0,  9, 14, 0,  0, 0},
+    //                    {0,  0, 0,  9,  0, 10, 0,  0, 0},
+    //                    {0,  0, 4, 14, 10,  0, 2,  0, 0},
+    //                    {0,  0, 0,  0,  0,  2, 0,  1, 6},
+    //                    {8, 11, 0,  0,  0,  0, 1,  0, 7},
+    //                    {0,  0, 2,  0,  0,  0, 6,  7, 0}};
 
     // build the graph using the user input
-    int graph[V][V];
+    int graph[][];
 
     printf("Enter the number of rows: ");
 	scanf("%d", &rows);
@@ -111,9 +104,16 @@ int main()
 		return 1;
 	}
 
-    for (int i = 0; i < V; i++)
+    // allocate memory for the graph
+    graph = (int **)malloc(rows * sizeof(int *));
+    for (int i = 0; i < rows; i++)
     {
-        for (int j = 0; j < V; j++)
+        graph[i] = (int *)malloc(cols * sizeof(int));
+    }
+
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = i; j < cols; j++)
         {
             printf("Enter the weight of the edge between %d and %d: ", i, j);
             scanf("%d", &weight);
@@ -123,11 +123,13 @@ int main()
                 printf("Weight can't be negative");
                 return 1;
             }
+            graph[i][j] = weight;
+            graph[j][i] = weight;
         }
     }
 
     // Function call
-    dijkstra(graph, 0);
+    dijkstra(graph, 0, rows);
 
     return 0;
 }
