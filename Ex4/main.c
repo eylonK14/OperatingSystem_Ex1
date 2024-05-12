@@ -76,10 +76,110 @@ void dijkstra(int **graph, int src, int size)
     printSolution(dist, size);
 }
 
-// driver's code
-int main()
+int parseMatrixFromArgs(int **graph, int argc, char **argv)
+{
+    if (argc < 4)
+    {
+        printf("not enough values. exiting\n");
+        return 1;
+    }
+    int weight = 0, rows = 0, cols = 0;
+
+    rows = atoi(argv[1]);
+    cols = atoi(argv[2]);
+
+    if (rows < 0 || cols < 0 || rows != cols)
+	{
+		printf("Invalid input. The number of rows and columns must be positive and equal. exiting\n");
+		exit(1);
+	}
+
+    if (argc - 3 != (rows * (rows - 1) / 2))
+    {
+        printf("Invalid input. not enough values. exiting\n");
+		exit(1);
+    }
+
+    // allocate memory for the graph
+    graph = (int **)malloc(rows * sizeof(int *));
+    for (int i = 0; i < rows; i++)
+    {
+        graph[i] = (int *)malloc(cols * sizeof(int));
+    }
+
+    int arg_idx = 3;
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = i; j < cols; j++)
+        {
+            weight = atoi(argv[arg_idx++]);
+            if (weight < 0)
+            {
+                printf("Weight can't be negative. exiting\n");
+                exit(1);
+            }
+
+            graph[i][j] = weight;
+            graph[j][i] = weight;
+        }
+    }
+    return rows;
+}
+
+int parseMatrixFromStdin(int **graph)
 {
     int weight = 0, rows = 0, cols = 0;
+    printf("Enter the number of rows: ");
+	scanf("%d", &rows);
+	printf("Enter the number of columns: ");
+	scanf("%d", &cols);
+
+    if(rows < 0 || cols < 0 || rows != cols)
+	{
+		printf("Invalid input. The number of rows and columns must be positive and equal. exiting\n");
+		exit(1);
+	}
+
+    // allocate memory for the graph
+    graph = (int **)malloc(rows * sizeof(int *));
+    for (int i = 0; i < rows; i++)
+    {
+        graph[i] = (int *)malloc(cols * sizeof(int));
+    }
+
+    int counter = 0;
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = i; j < cols; j++)
+        {
+            printf("Enter the weight of the edge between %d and %d: ", i, j);
+            int x = scanf("%d", &weight);
+            
+            if (weight < 0)
+            {
+                printf("Weight can't be negative. exiting\n");
+                exit(1);
+            }
+
+            if (weight) counter++;
+
+            if (x == EOF && counter != rows)
+            {
+                printf("Invalid input. unexpected EOF, not enough values. exiting\n");
+		        exit(1);
+            }
+
+            graph[i][j] = weight;
+            graph[j][i] = weight;
+        }
+    }
+    return rows;
+}
+
+// driver's code
+int main(int argc, char **argv)
+{
+    
     /* Let us create the example graph discussed above */
     // int graph[V][V] = {{0,  4, 0,  0,  0,  0, 0,  8, 0},
     //                    {4,  0, 8,  0,  0,  0, 0, 11, 0},
@@ -93,44 +193,20 @@ int main()
 
     // build the graph using the user input
     int **graph;
+    int size = 0;
 
-    printf("Enter the number of rows: ");
-	scanf("%d", &rows);
-	printf("Enter the number of columns: ");
-	scanf("%d", &cols);
-
-    if(rows < 0 || cols < 0 || rows != cols)
-	{
-		printf("Invalid input. The number of rows and columns must be positive and equal.\n");
-		return 1;
-	}
-
-    // allocate memory for the graph
-    graph = (int **)malloc(rows * sizeof(int *));
-    for (int i = 0; i < rows; i++)
+    printf("argc: %d\n", argc);
+    if (argc > 1)
     {
-        graph[i] = (int *)malloc(cols * sizeof(int));
+        size = parseMatrixFromArgs(graph, argc, argv);
     }
-
-    for (int i = 0; i < rows; i++)
+    else
     {
-        for (int j = i; j < cols; j++)
-        {
-            printf("Enter the weight of the edge between %d and %d: ", i, j);
-            scanf("%d", &weight);
-
-            if (weight < 0)
-            {
-                printf("Weight can't be negative");
-                return 1;
-            }
-            graph[i][j] = weight;
-            graph[j][i] = weight;
-        }
+        size = parseMatrixFromStdin(graph);
     }
 
     // Function call
-    dijkstra(graph, 0, rows);
+    dijkstra(graph, 0, size);
 
     return 0;
 }
