@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g -fprofile-arcs -ftest-coverage
 
-all = main
+all: main
 
 main: main.c
 	$(CC) $(CFLAGS) -o main main.c

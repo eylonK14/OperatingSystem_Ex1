@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // A utility function to find the vertex with minimum
 // distance value, from the set of vertices not yet included
@@ -76,110 +77,19 @@ void dijkstra(int **graph, int src, int size)
     printSolution(dist, size);
 }
 
-int parseMatrixFromArgs(int **graph, int argc, char **argv)
+char* myGetLine(char* data)
 {
-    if (argc < 4)
-    {
-        printf("not enough values. exiting\n");
-        return 1;
-    }
-    int weight = 0, rows = 0, cols = 0;
-
-    rows = atoi(argv[1]);
-    cols = atoi(argv[2]);
-
-    if (rows < 0 || cols < 0 || rows != cols)
-	{
-		printf("Invalid input. The number of rows and columns must be positive and equal. exiting\n");
-		exit(1);
-	}
-
-    if (argc - 3 != (rows * (rows - 1) / 2))
-    {
-        printf("Invalid input. not enough values. exiting\n");
-		exit(1);
-    }
-
-    // allocate memory for the graph
-    graph = (int **)malloc(rows * sizeof(int *));
-    for (int i = 0; i < rows; i++)
-    {
-        graph[i] = (int *)malloc(cols * sizeof(int));
-    }
-
-    int arg_idx = 3;
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = i; j < cols; j++)
-        {
-            weight = atoi(argv[arg_idx++]);
-            if (weight < 0)
-            {
-                printf("Weight can't be negative. exiting\n");
-                exit(1);
-            }
-
-            graph[i][j] = weight;
-            graph[j][i] = weight;
-        }
-    }
-    return rows;
-}
-
-int parseMatrixFromStdin(int **graph)
-{
-    int weight = 0, rows = 0, cols = 0;
-    printf("Enter the number of rows: ");
-	scanf("%d", &rows);
-	printf("Enter the number of columns: ");
-	scanf("%d", &cols);
-
-    if(rows < 0 || cols < 0 || rows != cols)
-	{
-		printf("Invalid input. The number of rows and columns must be positive and equal. exiting\n");
-		exit(1);
-	}
-
-    // allocate memory for the graph
-    graph = (int **)malloc(rows * sizeof(int *));
-    for (int i = 0; i < rows; i++)
-    {
-        graph[i] = (int *)malloc(cols * sizeof(int));
-    }
-
-    int counter = 0;
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = i; j < cols; j++)
-        {
-            printf("Enter the weight of the edge between %d and %d: ", i, j);
-            int x = scanf("%d", &weight);
-            
-            if (weight < 0)
-            {
-                printf("Weight can't be negative. exiting\n");
-                exit(1);
-            }
-
-            if (weight) counter++;
-
-            if (x == EOF && counter != rows)
-            {
-                printf("Invalid input. unexpected EOF, not enough values. exiting\n");
-		        exit(1);
-            }
-
-            graph[i][j] = weight;
-            graph[j][i] = weight;
-        }
-    }
-    return rows;
+    data = NULL;
+    size_t len = 0;
+    getline(&data, &len, stdin);
+    data[strcspn(data, "\r\n")] = 0;
+    return data;
 }
 
 // driver's code
 int main(int argc, char **argv)
 {
-    
+
     /* Let us create the example graph discussed above */
     // int graph[V][V] = {{0,  4, 0,  0,  0,  0, 0,  8, 0},
     //                    {4,  0, 8,  0,  0,  0, 0, 11, 0},
@@ -192,21 +102,64 @@ int main(int argc, char **argv)
     //                    {0,  0, 2,  0,  0,  0, 6,  7, 0}};
 
     // build the graph using the user input
-    int **graph;
-    int size = 0;
+    int weight = 0, rows = 0, cols = 0;
+    printf("Enter the number of rows: ");
+	scanf("%d", &rows);getchar();
+	printf("Enter the number of columns: ");
+	scanf("%d", &cols);getchar();    
 
-    printf("argc: %d\n", argc);
-    if (argc > 1)
+    if(rows < 0 || cols < 0 || rows != cols)
+	{
+		printf("Invalid input. The number of rows and columns must be positive and equal. exiting\n");
+		exit(1);
+	}
+
+    // allocate memory for the graph
+    int **graph = (int **)malloc(rows * sizeof(int *));
+    for (int i = 0; i < rows; i++)
     {
-        size = parseMatrixFromArgs(graph, argc, argv);
+        graph[i] = (int *)malloc(cols * sizeof(int));
     }
-    else
+
+    for (int i = 0; i < rows; i++)
     {
-        size = parseMatrixFromStdin(graph);
+        printf("Enter the weight for line %d\n", i + 1);
+        char *weight_str = NULL;
+        weight_str = myGetLine(weight_str);
+        // if (x == EOF)
+        // {
+        //     printf("Invalid input. unexpected EOF, not enough values. exiting\n");
+        //     exit(1);
+        // }
+        // parse the input using strtok with the delimiter space
+        char *token = strtok(weight_str, " ");
+        int j = 0;
+        for (j = 0; j < cols; j++)
+        {
+            if (token) {weight = atoi(token);}
+            if (weight < 0)
+            {
+                printf("Weight can't be negative. exiting\n");
+                exit(1);
+            }
+
+            graph[i][j] = weight;
+            token = strtok(NULL, " ");
+        }
+        if(token == NULL && j < cols)
+        {
+            printf("Invalid amount of values in row\n");
+            exit(1);
+        }
+        if(token != NULL && j == cols - 1)
+        {
+            printf("Invalid amount of values in row\n");
+            exit(1);
+        }
     }
 
     // Function call
-    dijkstra(graph, 0, size);
+    dijkstra(graph, 0, rows);
 
     return 0;
 }
